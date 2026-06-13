@@ -1,0 +1,8 @@
+# 防護用：本 repo 為 generated 純密文站，不應出現任何 secret 或本地中間產物
+.env
+.env.*
+*.key
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc

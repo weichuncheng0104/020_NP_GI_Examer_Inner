@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Architect · 知識整理</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4efe4; --paper:#fffdf8; --ink:#23262b; --muted:#6c6a60;
+  --pine:#0f5b50; --pine-d:#0a463d; --amber:#bb7a16; --amber-s:#9a6210;
+  --ok:#1f7a48; --ok-bg:#e4f3e8; --bad:#b23a2e; --bad-bg:#fbe7e3;
+  --line:#e6dfce; --line-s:#d8cfba; --chip:#efe9da;
+  --shadow:0 1px 2px rgba(40,30,10,.04),0 8px 22px -14px rgba(40,30,10,.18);
+  --serif:'Fraunces',Georgia,'Songti TC',serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:
+  radial-gradient(1100px 520px at 82% -8%,rgba(187,122,22,.10),transparent 60%),
+  radial-gradient(900px 520px at -8% 4%,rgba(15,91,80,.10),transparent 55%),
+  var(--bg);
+  color:var(--ink);font-family:var(--sans);line-height:1.72;-webkit-font-smoothing:antialiased}
+
+/* ── 密碼卡（gate）─────────────────────────────────── */
+#gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.gatecard{max-width:460px;width:100%;background:var(--paper);border:1px solid var(--line);border-radius:22px;
+  padding:38px 34px 28px;box-shadow:0 2px 4px rgba(40,30,10,.05),0 30px 60px -30px rgba(40,30,10,.30);
+  animation:rise .55s both;text-align:center}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.gatecard .kick{font:500 italic .95rem/1 var(--serif);letter-spacing:.05em;color:var(--amber)}
+.gatecard h1{margin:.3em 0 .1em;font:600 1.95rem/1.12 var(--sans);letter-spacing:-.01em}
+.gatecard h1 .gi{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--pine)}
+.gatecard .lead{color:var(--muted);font-size:.92rem;margin:.4em auto 0;max-width:34ch}
+.gatecard .rule{height:2px;width:60px;margin:18px auto;background:linear-gradient(90deg,var(--amber),transparent)}
+.pwrow{display:flex;gap:8px;margin:6px 0 4px}
+#pw{flex:1;font:inherit;font-size:1rem;padding:12px 14px;border:1px solid var(--line-s);border-radius:11px;
+  background:var(--paper);color:var(--ink);transition:border-color .15s,box-shadow .15s}
+#pw:focus{outline:none;border-color:var(--pine);box-shadow:0 0 0 3px rgba(15,91,80,.12)}
+#unlock{font:inherit;font-weight:600;font-size:1rem;padding:12px 22px;border:none;border-radius:11px;cursor:pointer;
+  background:linear-gradient(155deg,var(--pine),var(--pine-d));color:#f3ece0;
+  box-shadow:0 10px 24px -12px rgba(15,91,80,.7);transition:transform .15s,box-shadow .15s,opacity .15s}
+#unlock:hover{transform:translateY(-2px);box-shadow:0 16px 30px -12px rgba(15,91,80,.75)}
+#unlock:disabled{opacity:.6;cursor:progress;transform:none}
+#err{min-height:1.2em;margin-top:10px;font-size:.86rem;color:var(--bad)}
+#err.busy{color:var(--muted)}
+
+/* ── 內文（app）─────────────────────────────────────── */
+#app{max-width:920px;margin:0 auto;padding:0 16px 80px}
+.hd{position:relative;margin:18px 0 6px;padding:26px 26px 22px;border-radius:18px;overflow:hidden;
+  background:linear-gradient(155deg,var(--pine),var(--pine-d) 70%);color:#f3ece0;box-shadow:var(--shadow)}
+.hd::after{content:"";position:absolute;inset:0;opacity:.5;pointer-events:none;
+  background:radial-gradient(520px 200px at 88% 8%,rgba(187,122,22,.30),transparent 60%),
+   repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 2px,transparent 2px 9px)}
+.hd .kick{position:relative;font:500 italic .92rem/1 var(--serif);letter-spacing:.06em;color:#e7c98c}
+.hd h1{position:relative;margin:.3em 0 .15em;font:600 1.8rem/1.14 var(--sans);letter-spacing:-.01em}
+.hd h1 .gi{font-family:var(--serif);font-style:italic;font-weight:500;color:#f0d6a0}
+.hd .sub{position:relative;font-size:.92rem;opacity:.92;max-width:54ch}
+
+/* ── 主題清單 ───────────────────────────────────────── */
+#topiclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:11px;margin:18px 0 8px}
+.t{display:flex;flex-direction:column;gap:5px;text-decoration:none;padding:14px 16px;border:1px solid var(--line);
+  border-radius:13px;background:var(--paper);box-shadow:var(--shadow);transition:transform .14s,border-color .14s,box-shadow .14s}
+.t:hover{transform:translateY(-2px);border-color:var(--pine);box-shadow:0 12px 26px -16px rgba(15,91,80,.55)}
+.t .tn{font-weight:600;font-size:1rem;color:var(--ink);line-height:1.4}
+.t .tc{font-size:.78rem;color:var(--muted);font-family:var(--serif)}
+.t .sup{align-self:flex-start;font-size:.68rem;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--amber-s)}
+
+/* ── 完整手冊 PDF 下載鈕 ─────────────────────────────── */
+.dlbar{margin:16px 0 2px;text-align:center}
+.dl{display:inline-block;padding:10px 20px;border:1px solid var(--pine);border-radius:11px;
+  color:var(--pine);text-decoration:none;font-size:.92rem;background:var(--paper);
+  box-shadow:var(--shadow);transition:transform .14s,background .14s,color .14s}
+.dl:hover{transform:translateY(-2px);background:var(--pine);color:#f3ece0}
+.dl small{display:block;font-size:.72rem;color:var(--muted);margin-top:2px}
+.dl:hover small{color:#e7c98c}
+
+/* ── 單一知識頁 ─────────────────────────────────────── */
+#back{font:inherit;font-size:.9rem;margin:16px 0 4px;padding:8px 16px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--pine);color:var(--pine);background:transparent;transition:all .15s}
+#back:hover{background:var(--pine);color:#fff}
+.kpage{margin-top:6px}
+.kpage h1{font:600 1.7rem/1.18 var(--sans);letter-spacing:-.01em;margin:.2em 0 .15em;color:var(--pine-d)}
+.kpage h2{font:600 1.22rem/1.3 var(--sans);margin:1.5em 0 .5em;padding-bottom:6px;border-bottom:1.5px solid var(--line-s);color:var(--ink)}
+.kpage h2.relq{color:var(--pine);border-bottom-color:var(--pine)}
+.kpage h3{font:600 1.05rem/1.35 var(--sans);margin:1.2em 0 .4em;color:var(--amber-s)}
+.kpage p{margin:.7em 0}
+.kpage .counts{display:inline-block;font-family:var(--serif);font-size:.95rem;color:var(--pine);
+  background:var(--ok-bg);border:1px solid #cbe6d3;border-radius:999px;padding:5px 16px;margin:.1em 0 .4em}
+.kpage ul,.kpage ol{margin:.6em 0;padding-left:1.5em}
+.kpage li{margin:.3em 0}
+.kpage strong,.kpage b{font-weight:600;color:var(--ink)}
+.kpage table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9rem;background:var(--paper);
+  border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.kpage th,.kpage td{padding:8px 11px;border:1px solid var(--line);text-align:left;vertical-align:top}
+.kpage th{background:#efe9da;font-weight:600;color:var(--ink)}
+.kpage tbody tr:nth-child(even){background:#faf6ec}
+.kpage code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em;background:#efe9da;
+  padding:1px 5px;border-radius:5px}
+.kpage blockquote{margin:1em 0;padding:8px 15px;border-left:4px solid var(--amber);background:#fbf3e0;color:#5a523f}
+.kpage .fig{max-width:100%;border:1px solid var(--line-s);border-radius:10px;margin:10px 0 2px;display:block}
+.kpage .figcap{font-size:.78rem;color:var(--muted);margin:2px 0 10px}
+
+/* ── 相關題目（details 鏡像 gi.html 詳解）──────────────── */
+.qd{margin:11px 0;border:1px solid var(--line);border-radius:13px;background:var(--paper);box-shadow:var(--shadow);overflow:hidden}
+.qd>summary{cursor:pointer;padding:13px 16px;font-weight:600;font-size:.97rem;color:var(--ink);list-style:none;
+  display:flex;align-items:baseline;gap:8px}
+.qd>summary::-webkit-details-marker{display:none}
+.qd>summary::before{content:"▸";color:var(--amber-s);font-family:var(--serif);transition:transform .15s}
+.qd[open]>summary::before{transform:rotate(90deg)}
+.qd>summary:hover{background:#f7f2e7}
+.qd .stem{padding:4px 16px 10px;font-weight:600;font-size:.98rem}
+.qd .stem b{font-family:var(--serif);color:var(--amber-s);font-style:italic;margin-right:4px;font-weight:600}
+.qd .opt{display:flex;gap:9px;padding:8px 16px;margin:0;font-size:.95rem}
+.qd .opt b{font-family:var(--serif);font-weight:600;color:var(--muted);flex:none;min-width:1.4em}
+.ansline{font-family:var(--serif);font-style:italic;font-size:1.02rem;color:var(--pine-d);margin:8px 16px 4px}
+.qd .box{border-radius:11px;padding:11px 14px;margin:9px 16px;font-size:.94rem}
+.qd .box h4{margin:0 0 6px;font-size:.82rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;opacity:.85}
+.qd .box.qk{background:var(--ok-bg);border-left:4px solid var(--ok)}
+.qd .box.bg{background:#fbf3e0;border-left:4px solid var(--amber);white-space:pre-wrap}
+.qd .box.oa{background:#eaf1ef;border-left:4px solid var(--pine)}
+.qd .box.oa .row{padding:6px 8px;margin:3px 0;border-radius:8px;font-size:.92rem}
+.qd .box.oa .row b{font-family:var(--serif);color:var(--muted);margin-right:5px}
+.qd .box.oa .row.correct{background:#d5ecdd;font-weight:600}
+.qd .box.oa .row.correct b{color:var(--ok)}
+.qd .box.disc{background:#fdeee3;border-left:4px solid var(--amber-s);white-space:pre-wrap}
+.qd .refs{margin:9px 16px;padding:11px 14px;background:#f4f1e8;border:1px solid var(--line);border-radius:11px}
+.qd .refs h4{margin:0 0 7px;font-size:.82rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
+.qd .ref{font-size:.85rem;color:#4a4638;padding:4px 0;border-bottom:1px dashed var(--line-s);line-height:1.6}
+.qd .ref:last-child{border-bottom:none}
+
+/* ── 頁尾（無姓名/email；密碼鎖私站宣告）────────────── */
+.note{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted);line-height:1.85;text-align:center}
+.gatecard .note{margin-top:22px;border-top:1px solid var(--line);padding-top:16px;text-align:center}
+@media(max-width:560px){
+  #app{padding:0 11px 60px}.hd{padding:22px 18px 20px}.hd h1{font-size:1.5rem}
+  #topiclist{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- 密碼卡 -->
+<div id="gate">
+  <main class="gatecard">
+    <div class="kick">Nurse Practitioner · Architect</div>
+    <h1>胃腸肝膽科<span class="gi"> 知識整理</span></h1>
+    <p class="lead">53 個概念主題的完整整理，限有密碼者閱覽。</p>
+    <div class="rule"></div>
+    <div class="pwrow">
+      <input type="password" id="pw" placeholder="輸入密碼" autocomplete="current-password" autofocus>
+      <button id="unlock">解鎖</button>
+    </div>
+    <div id="err"></div>
+    <footer class="note">非公開・私人考題及內容知識整理與確認使用。密碼保護下，本站為非營利、無公開散布／非法擴散意圖之個人學習用途。</footer>
+  </main>
+</div>
+
+<!-- 解鎖後內文 -->
+<div id="app" hidden>
+  <header class="hd">
+    <div class="kick">Nurse Practitioner · Architect</div>
+    <h1>胃腸肝膽科<span class="gi"> 知識整理</span></h1>
+    <div class="sub">依概念主題整理 109–114 年甄審試題涵蓋之胃腸肝膽知識，每頁附相關題目與 Phase 1 詳解。一律以官方標準答案為正解。</div>
+  </header>
+  <div class="dlbar">
+    <a class="dl" href="manual/np-gi-handbook.pdf" download>⬇ 下載完整手冊 PDF<small>同密碼開啟・離線可讀</small></a>
+  </div>
+  <div id="topiclist"></div>
+  <div id="page" hidden></div>
+  <footer class="note">非公開・私人考題及內容知識整理與確認使用。密碼保護下，本站為非營利、無公開散布／非法擴散意圖之個人學習用途。</footer>
+</div>
+
+<script>window.__META__ = {"v": 1, "kdf": "PBKDF2-SHA256", "iterations": 600000, "salt_b64": "x5tQf3U3PmAyam3K8GKYrA==", "cipher": "AES-256-GCM"};</script>
+<script src="app.js"></script>
+</body>
+</html>
