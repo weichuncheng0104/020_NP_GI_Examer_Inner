@@ -39,10 +39,13 @@ body{margin:0;min-height:100vh;background:
 .gatecard h1 .gi{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--pine)}
 .gatecard .lead{color:var(--muted);font-size:.92rem;margin:.4em auto 0;max-width:34ch}
 .gatecard .rule{height:2px;width:60px;margin:18px auto;background:linear-gradient(90deg,var(--amber),transparent)}
-.pwrow{display:flex;gap:8px;margin:6px 0 4px}
-#pw{flex:1;font:inherit;font-size:1rem;padding:12px 14px;border:1px solid var(--line-s);border-radius:11px;
+.pwrow{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}
+#pw{flex:1 1 150px;font:inherit;font-size:1rem;padding:12px 14px;border:1px solid var(--line-s);border-radius:11px;
   background:var(--paper);color:var(--ink);transition:border-color .15s,box-shadow .15s}
 #pw:focus{outline:none;border-color:var(--pine);box-shadow:0 0 0 3px rgba(15,91,80,.12)}
+.pwtoggle{font:inherit;font-size:.85rem;padding:0 14px;border:1px solid var(--line-s);border-radius:11px;
+  background:var(--paper);color:var(--muted);cursor:pointer;white-space:nowrap;transition:border-color .15s,color .15s}
+.pwtoggle:hover,.pwtoggle[aria-pressed="true"]{border-color:var(--pine);color:var(--pine)}
 #unlock{font:inherit;font-weight:600;font-size:1rem;padding:12px 22px;border:none;border-radius:11px;cursor:pointer;
   background:linear-gradient(155deg,var(--pine),var(--pine-d));color:#f3ece0;
   box-shadow:0 10px 24px -12px rgba(15,91,80,.7);transition:transform .15s,box-shadow .15s,opacity .15s}
@@ -63,9 +66,22 @@ body{margin:0;min-height:100vh;background:
 .hd h1 .gi{font-family:var(--serif);font-style:italic;font-weight:500;color:#f0d6a0}
 .hd .sub{position:relative;font-size:.92rem;opacity:.92;max-width:54ch}
 
+/* ── 歷年題數統計（目錄頁頂）─────────────────────────── */
+.statsbox{margin:18px 0 4px;padding:16px 18px 14px;background:var(--paper);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow)}
+.statsbox .stitle{font:600 1.05rem/1.3 var(--sans);margin:0 0 10px;color:var(--pine-d)}
+.statsbox .stwrap{overflow-x:auto}
+.stab{border-collapse:collapse;width:100%;font-size:.9rem;min-width:360px}
+.stab th,.stab td{padding:7px 10px;border:1px solid var(--line);text-align:center}
+.stab th{background:#efe9da;color:var(--ink);font-weight:600}
+.stab td.yr{font-family:var(--serif);color:var(--pine);font-weight:600}
+.stab td.tot{font-weight:600}
+.stab tr.total td{background:var(--ok-bg);font-weight:600}
+
 /* ── 主題清單 ───────────────────────────────────────── */
 #topiclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:11px;margin:18px 0 8px}
-.t{display:flex;flex-direction:column;gap:5px;text-decoration:none;padding:14px 16px;border:1px solid var(--line);
+.t{display:flex;flex-direction:column;gap:5px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:inherit;
+  cursor:pointer;text-decoration:none;padding:14px 16px;border:1px solid var(--line);
   border-radius:13px;background:var(--paper);box-shadow:var(--shadow);transition:transform .14s,border-color .14s,box-shadow .14s}
 .t:hover{transform:translateY(-2px);border-color:var(--pine);box-shadow:0 12px 26px -16px rgba(15,91,80,.55)}
 .t .tn{font-weight:600;font-size:1rem;color:var(--ink);line-height:1.4}
@@ -155,6 +171,7 @@ body{margin:0;min-height:100vh;background:
     <div class="rule"></div>
     <div class="pwrow">
       <input type="password" id="pw" placeholder="輸入密碼" autocomplete="current-password" autofocus>
+      <button id="pwtoggle" type="button" class="pwtoggle" aria-label="顯示或隱藏密碼" aria-pressed="false">顯示</button>
       <button id="unlock">解鎖</button>
     </div>
     <div id="err"></div>
@@ -169,15 +186,21 @@ body{margin:0;min-height:100vh;background:
     <h1>胃腸肝膽科<span class="gi"> 知識整理</span></h1>
     <div class="sub">依概念主題整理 109–114 年甄審試題涵蓋之胃腸肝膽知識，每頁附相關題目與 Phase 1 詳解。一律以官方標準答案為正解。</div>
   </header>
-  <div class="dlbar">
-    <a class="dl" href="manual/np-gi-handbook.pdf" download>⬇ 下載完整手冊 PDF<small>同密碼開啟・離線可讀</small></a>
+  <div id="catalog">
+    <section id="statspanel" class="statsbox" hidden>
+      <h2 class="stitle">歷年題數（109–114 年）</h2>
+      <div class="stwrap"><table class="stab" id="stab"></table></div>
+    </section>
+    <div class="dlbar">
+      <a class="dl" href="manual/np-gi-handbook.pdf" download>⬇ 下載完整手冊 PDF<small>同密碼開啟・離線可讀</small></a>
+    </div>
+    <div id="topiclist"></div>
   </div>
-  <div id="topiclist"></div>
   <div id="page" hidden></div>
   <footer class="note">非公開・私人考題及內容知識整理與確認使用。密碼保護下，本站為非營利、無公開散布／非法擴散意圖之個人學習用途。</footer>
 </div>
 
-<script>window.__META__ = {"v": 1, "kdf": "PBKDF2-SHA256", "iterations": 600000, "salt_b64": "LZccSdxWzsu/AaXi1coZoQ==", "cipher": "AES-256-GCM"};</script>
+<script>window.__META__ = {"v": 1, "kdf": "PBKDF2-SHA256", "iterations": 600000, "salt_b64": "Eui3w44vHIgg+6PSYKK5Wg==", "cipher": "AES-256-GCM"};</script>
 <script src="app.js"></script>
 </body>
 </html>
