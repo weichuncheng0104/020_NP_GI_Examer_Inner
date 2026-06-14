@@ -1,0 +1,11 @@
+feat: InnerSite 登入改頂部驗證 band（收合/展開＋鎖定鈕）
+
+由 Repo A 0009 重新產生：登入介面從整頁密碼卡改為頁首「驗證 band」。
+- 未驗證：band 恆展開，顯示「🔒 未驗證」+ 密碼表單。
+- 驗證通過：切「✓ 已驗證」自動收合，其餘內容（目錄/分頁）展開；
+  band 可手動展開（含鎖定鈕＋提示文字）/收合；band 不固定（隨內容捲動）。
+- 安全不變：「已驗證」綁定記憶體 KEY && MANIFEST，收合純視覺；
+  reload/解密失敗/鎖定 → 清 KEY → fail-closed。
+- 全 .enc.json 因重新加密（新 IV/salt）一併更新；meta.json 僅 salt/iterations、無密碼。
+
+產物由 Repo A pipeline 產生，禁手改。secret 掃描乾淨（密碼 0 命中）。

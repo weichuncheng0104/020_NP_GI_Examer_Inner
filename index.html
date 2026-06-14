@@ -28,17 +28,32 @@ body{margin:0;min-height:100vh;background:
   var(--bg);
   color:var(--ink);font-family:var(--sans);line-height:1.72;-webkit-font-smoothing:antialiased}
 
-/* ── 密碼卡（gate）─────────────────────────────────── */
-#gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.gatecard{max-width:460px;width:100%;background:var(--paper);border:1px solid var(--line);border-radius:22px;
-  padding:38px 34px 28px;box-shadow:0 2px 4px rgba(40,30,10,.05),0 30px 60px -30px rgba(40,30,10,.30);
-  animation:rise .55s both;text-align:center}
-@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.gatecard .kick{font:500 italic .95rem/1 var(--serif);letter-spacing:.05em;color:var(--amber)}
-.gatecard h1{margin:.3em 0 .1em;font:600 1.95rem/1.12 var(--sans);letter-spacing:-.01em}
-.gatecard h1 .gi{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--pine)}
-.gatecard .lead{color:var(--muted);font-size:.92rem;margin:.4em auto 0;max-width:34ch}
-.gatecard .rule{height:2px;width:60px;margin:18px auto;background:linear-gradient(90deg,var(--amber),transparent)}
+/* ── 頂部驗證 band（頁首，不固定）─────────────────────
+   永遠可見：未驗證＝密碼表單（展開）；已驗證＝可收合的鎖定區。
+   狀態由 KEY+MANIFEST 決定（見 app.js renderBand），非獨立開關。 */
+#bandbar{background:var(--paper);border-bottom:1px solid var(--line);
+  box-shadow:0 1px 2px rgba(40,30,10,.04),0 10px 24px -18px rgba(40,30,10,.22)}
+.bandinner{max-width:920px;margin:0 auto;padding:0 16px}
+.bandhdr{display:flex;align-items:center;gap:11px;padding:11px 0;flex-wrap:wrap}
+.bstat{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.9rem;
+  padding:5px 13px;border-radius:999px;white-space:nowrap;border:1px solid transparent}
+.bstat.no{background:var(--bad-bg);color:var(--bad);border-color:#eccac3}
+.bstat.ok{background:var(--ok-bg);color:var(--ok);border-color:#cbe6d3}
+.bname{font:500 italic .95rem/1.3 var(--serif);color:var(--muted);flex:1;min-width:120px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btoggle{font:inherit;font-size:.85rem;padding:6px 15px;border:1px solid var(--line-s);border-radius:999px;
+  background:transparent;color:var(--pine);cursor:pointer;white-space:nowrap;transition:all .14s}
+.btoggle:hover{background:var(--pine);color:#fff;border-color:var(--pine)}
+.bandbody{padding:2px 0 16px;animation:banddrop .28s both}
+.bandbody[hidden]{display:none}
+@keyframes banddrop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.authpanel .lead{color:var(--muted);font-size:.9rem;margin:4px 0 10px;max-width:46ch}
+.lockpanel{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.lockbtn{font:inherit;font-weight:600;font-size:.92rem;padding:9px 18px;border-radius:11px;cursor:pointer;
+  border:1px solid var(--bad);color:var(--bad);background:var(--paper);transition:all .15s}
+.lockbtn:hover{background:var(--bad);color:#fff}
+.lockhint{font-size:.8rem;color:var(--muted);margin:0;line-height:1.7;max-width:52ch}
+.bandnote{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);text-align:left;font-size:.76rem}
 .pwrow{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}
 #pw{flex:1 1 150px;font:inherit;font-size:1rem;padding:12px 14px;border:1px solid var(--line-s);border-radius:11px;
   background:var(--paper);color:var(--ink);transition:border-color .15s,box-shadow .15s}
@@ -153,7 +168,6 @@ body{margin:0;min-height:100vh;background:
 
 /* ── 頁尾（無姓名/email；密碼鎖私站宣告）────────────── */
 .note{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted);line-height:1.85;text-align:center}
-.gatecard .note{margin-top:22px;border-top:1px solid var(--line);padding-top:16px;text-align:center}
 @media(max-width:560px){
   #app{padding:0 11px 60px}.hd{padding:22px 18px 20px}.hd h1{font-size:1.5rem}
   #topiclist{grid-template-columns:1fr}
@@ -162,21 +176,33 @@ body{margin:0;min-height:100vh;background:
 </head>
 <body>
 
-<!-- 密碼卡 -->
-<div id="gate">
-  <main class="gatecard">
-    <div class="kick">Nurse Practitioner · Architect</div>
-    <h1>胃腸肝膽科<span class="gi"> 知識整理</span></h1>
-    <p class="lead">53 個概念主題的完整整理，限有密碼者閱覽。</p>
-    <div class="rule"></div>
-    <div class="pwrow">
-      <input type="password" id="pw" placeholder="輸入密碼" autocomplete="current-password" autofocus>
-      <button id="pwtoggle" type="button" class="pwtoggle" aria-label="顯示或隱藏密碼" aria-pressed="false">顯示</button>
-      <button id="unlock">解鎖</button>
+<!-- 頂部驗證 band（頁首・不固定）：永遠可見；未驗證＝密碼表單，已驗證＝可收合的鎖定區 -->
+<div id="bandbar">
+ <div class="bandinner">
+  <div class="bandhdr">
+    <span id="bstat" class="bstat no">🔒 未驗證</span>
+    <span class="bname">胃腸肝膽科 知識整理</span>
+    <button id="btoggle" type="button" class="btoggle" hidden aria-expanded="false">展開</button>
+  </div>
+  <div id="bandbody" class="bandbody">
+    <!-- 未驗證：密碼表單 -->
+    <div id="authpanel">
+      <p class="lead">53 個概念主題的完整整理，限有密碼者閱覽。輸入密碼解鎖。</p>
+      <div class="pwrow">
+        <input type="password" id="pw" placeholder="輸入密碼" autocomplete="current-password" autofocus>
+        <button id="pwtoggle" type="button" class="pwtoggle" aria-label="顯示或隱藏密碼" aria-pressed="false">顯示</button>
+        <button id="unlock">解鎖</button>
+      </div>
+      <div id="err"></div>
+      <footer class="note bandnote">非公開・私人考題及內容知識整理與確認使用。密碼保護下，本站為非營利、無公開散布／非法擴散意圖之個人學習用途。</footer>
     </div>
-    <div id="err"></div>
-    <footer class="note">非公開・私人考題及內容知識整理與確認使用。密碼保護下，本站為非營利、無公開散布／非法擴散意圖之個人學習用途。</footer>
-  </main>
+    <!-- 已驗證：鎖定鈕 + 提示文字 -->
+    <div id="lockpanel" hidden>
+      <button id="lock" type="button" class="lockbtn">🔒 鎖定（清除金鑰，回未驗證）</button>
+      <p class="lockhint">金鑰僅存於此分頁記憶體；重新整理或關閉分頁即自動登出。共用裝置使用完畢請按鎖定。</p>
+    </div>
+  </div>
+ </div>
 </div>
 
 <!-- 解鎖後內文 -->
@@ -200,7 +226,7 @@ body{margin:0;min-height:100vh;background:
   <footer class="note">非公開・私人考題及內容知識整理與確認使用。密碼保護下，本站為非營利、無公開散布／非法擴散意圖之個人學習用途。</footer>
 </div>
 
-<script>window.__META__ = {"v": 1, "kdf": "PBKDF2-SHA256", "iterations": 600000, "salt_b64": "Eui3w44vHIgg+6PSYKK5Wg==", "cipher": "AES-256-GCM"};</script>
+<script>window.__META__ = {"v": 1, "kdf": "PBKDF2-SHA256", "iterations": 600000, "salt_b64": "Hqn1XjF8R12sU5Htp+vW/g==", "cipher": "AES-256-GCM"};</script>
 <script src="app.js"></script>
 </body>
 </html>

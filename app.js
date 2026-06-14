@@ -3,14 +3,15 @@
    加密參數須與 script/_crypto_envelope.py 一致：
    PBKDF2-SHA256・iterations(META.iterations)・salt(META.salt_b64)・AES-GCM 256・iv 12B・tag 128bit・aad=UTF-8。
 
-   導覽守衛（user 2026-06-14）：密碼頁 → 目錄頁 → 分頁；金鑰只存記憶體、不持久化。
-   - 目錄頁僅在解鎖（KEY+MANIFEST 在記憶體）後存在。
-   - 分頁只容許從目錄頁點入（VIEW==='catalog' 時才能開）；分頁可按「返回目錄」回目錄頁。
-   - 不使用 hash deep-link；reload 或任何非法路徑 → KEY 消失 → 一律回密碼頁。 */
+   導覽守衛 + 驗證 band（user 2026-06-14）：頂部 band 顯示驗證狀態，金鑰只存記憶體、不持久化。
+   - band「已驗證」狀態 = KEY+MANIFEST 是否在記憶體（非獨立開關）；解鎖後 band 自動收合，可手動展開（內含鎖定鈕）。
+   - 目錄/分頁內容僅在解鎖後存在；分頁只容許從目錄頁點入（VIEW==='catalog'）。
+   - 不使用 hash deep-link；reload / 解密失敗 / 按鎖定 → KEY 消失 → band 回未驗證、內容收起（fail-closed）。 */
 const META = window.__META__;
 let KEY = null;        // 快取的 CryptoKey（導一次重用；reload 即消失）
 let MANIFEST = null;   // 解密後的主題清單 + 歷年題數 stats
 let VIEW = 'gate';     // 'gate' | 'catalog' | 'topic'
+let BAND_OPEN = false; // 已驗證後頂部 band 是否展開（預設收合；未驗證時恆展開）
 
 const $ = id => document.getElementById(id);
 const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
@@ -43,16 +44,35 @@ function setErr(msg, busy){
   el.classList.toggle('busy', !!busy);
 }
 
-/* ── 導覽守衛 ─────────────────────────────────────────── */
+/* ── 導覽守衛 + 驗證 band ──────────────────────────────
+   band 的「已驗證/未驗證」一律由 KEY+MANIFEST 是否存在決定（非獨立開關）；
+   金鑰消失（reload/解密失敗/按鎖定）→ band 自動回未驗證、內容收起。
+   「收合」純屬視覺：內容永遠由解密 gate，收合 band 不會讓任何明文提早出現。 */
+function renderBand(){
+  const authed = !!(KEY && MANIFEST);
+  $('bstat').textContent = authed ? '✓ 已驗證' : '🔒 未驗證';
+  $('bstat').className = 'bstat ' + (authed ? 'ok' : 'no');
+  $('authpanel').hidden = authed;       // 未驗證才顯示密碼表單
+  $('lockpanel').hidden = !authed;      // 已驗證才顯示鎖定區
+  $('btoggle').hidden = !authed;        // 只有已驗證才能收合/展開
+  const open = authed ? BAND_OPEN : true;   // 未驗證一律展開（要能輸入密碼）
+  $('bandbody').hidden = !open;
+  $('btoggle').textContent = open ? '收合' : '展開';
+  $('btoggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
 function toGate(){
-  VIEW = 'gate'; KEY = null; MANIFEST = null;
-  $('app').hidden = true; $('gate').hidden = false;
+  VIEW = 'gate'; KEY = null; MANIFEST = null; BAND_OPEN = false;
+  $('app').hidden = true;                       // 內容（目錄/分頁）一律收起
+  $('page').hidden = true; $('page').innerHTML = '';
+  $('catalog').hidden = false;
   $('pw').value = '';
+  renderBand();                                 // band 回未驗證 + 密碼表單展開
 }
 function showCatalog(){
-  if(!KEY || !MANIFEST){ toGate(); return; }   // 目錄頁只在解鎖後存在
+  if(!KEY || !MANIFEST){ toGate(); return; }    // 目錄頁只在解鎖後存在
   VIEW = 'catalog';
-  $('gate').hidden = true; $('app').hidden = false;
+  $('app').hidden = false;
   $('page').hidden = true; $('page').innerHTML = '';
   $('catalog').hidden = false;
   window.scrollTo(0, 0);
@@ -69,10 +89,13 @@ async function unlock(){
     MANIFEST = JSON.parse(await decryptEnv(env, 'manifest'));   // 錯密碼 → throw（GCM InvalidTag）
     renderCatalog();
     setErr('', false);
+    BAND_OPEN = false;                                          // 解鎖後 band 自動收合
+    renderBand();                                              // 切到「✓ 已驗證」
     showCatalog();                                             // 解鎖後一律進目錄頁
   } catch(e){
-    toGate();                                                 // 失敗一律回密碼頁（fail-closed）
+    toGate();                                                 // 失敗一律回未驗證（fail-closed）
     setErr('密碼錯誤或資料載入失敗，請重試', false);
+    $('pw').focus();
   } finally {
     $('unlock').disabled = false;
   }
@@ -143,6 +166,12 @@ $('pwtoggle').onclick = () => {
   btn.textContent = show ? '隱藏' : '顯示';
   btn.setAttribute('aria-pressed', show ? 'true' : 'false');
   pw.focus();
+};
+$('lock').onclick = () => { toGate(); $('pw').focus(); };   // 鎖定：清金鑰、回未驗證、收起內容
+$('btoggle').onclick = () => {                              // 收合/展開（僅已驗證有效）
+  if(!(KEY && MANIFEST)) return;
+  BAND_OPEN = !BAND_OPEN;
+  renderBand();
 };
 $('topiclist').addEventListener('click', e => {
   const btn = e.target.closest('.t');
