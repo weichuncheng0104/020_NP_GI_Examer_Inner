@@ -93,18 +93,27 @@ body{margin:0;min-height:100vh;background:
 .stab td.tot{font-weight:600}
 .stab tr.total td{background:var(--ok-bg);font-weight:600}
 
-/* ── 主題清單 ───────────────────────────────────────── */
-#topiclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:11px;margin:18px 0 8px}
-.t{display:flex;flex-direction:column;gap:5px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:inherit;
-  cursor:pointer;text-decoration:none;padding:14px 16px;border:1px solid var(--line);
-  border-radius:13px;background:var(--paper);box-shadow:var(--shadow);transition:transform .14s,border-color .14s,box-shadow .14s}
-.t:hover{transform:translateY(-2px);border-color:var(--pine);box-shadow:0 12px 26px -16px rgba(15,91,80,.55)}
-.t .tn{font-weight:600;font-size:1rem;color:var(--ink);line-height:1.4}
-.t .tc{font-size:.78rem;color:var(--muted);font-family:var(--serif)}
-.t .sup{align-self:flex-start;font-size:.68rem;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--amber-s)}
+/* ── 主題統計表（可排序）─────────────────────────────── */
+#topiclist{margin:18px 0 8px;overflow-x:auto}
+.ttab{border-collapse:collapse;width:100%;font-size:.9rem;min-width:560px;background:var(--paper);
+  border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.ttab th,.ttab td{padding:9px 10px;border:1px solid var(--line);text-align:center}
+.ttab th{background:#efe9da;color:var(--ink);font-weight:600;white-space:nowrap;vertical-align:top}
+.ttab th .sub{display:block;font-size:.7rem;font-weight:400;color:var(--muted)}
+.ttab td.tname{text-align:left}
+.ttab a.tlink{color:var(--pine-d);font-weight:600;text-decoration:none;cursor:pointer}
+.ttab a.tlink:hover{color:var(--amber-s);text-decoration:underline}
+.ttab td.c109{font-weight:600;color:var(--pine-d);background:#eef4f1}
+.ttab tbody tr:hover{background:#f7f2e7}
+.ttab .sup{font-size:.66rem;padding:1px 6px;border-radius:999px;background:var(--chip);color:var(--amber-s);margin-left:6px}
+.sortbtns{display:inline-flex;gap:2px;margin-left:5px;vertical-align:middle}
+.sortbtns button{font:inherit;font-size:.66rem;line-height:1;padding:2px 5px;border:1px solid var(--line-s);
+  border-radius:6px;background:var(--paper);color:var(--muted);cursor:pointer;transition:all .12s}
+.sortbtns button:hover{border-color:var(--pine);color:var(--pine)}
+.sortbtns button.on{background:var(--pine);color:#fff;border-color:var(--pine)}
 
 /* ── 完整手冊 PDF 下載鈕 ─────────────────────────────── */
-.dlbar{margin:16px 0 2px;text-align:center}
+.dlbar{margin:16px 0 2px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .dl{display:inline-block;padding:10px 20px;border:1px solid var(--pine);border-radius:11px;
   color:var(--pine);text-decoration:none;font-size:.92rem;background:var(--paper);
   box-shadow:var(--shadow);transition:transform .14s,background .14s,color .14s}
@@ -170,7 +179,6 @@ body{margin:0;min-height:100vh;background:
 .note{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted);line-height:1.85;text-align:center}
 @media(max-width:560px){
   #app{padding:0 11px 60px}.hd{padding:22px 18px 20px}.hd h1{font-size:1.5rem}
-  #topiclist{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -187,7 +195,7 @@ body{margin:0;min-height:100vh;background:
   <div id="bandbody" class="bandbody">
     <!-- 未驗證：密碼表單 -->
     <div id="authpanel">
-      <p class="lead">53 個概念主題的完整整理，限有密碼者閱覽。輸入密碼解鎖。</p>
+      <p class="lead">60 個概念主題的完整整理，限有密碼者閱覽。輸入密碼解鎖。</p>
       <div class="pwrow">
         <input type="password" id="pw" placeholder="輸入密碼" autocomplete="current-password" autofocus>
         <button id="pwtoggle" type="button" class="pwtoggle" aria-label="顯示或隱藏密碼" aria-pressed="false">顯示</button>
@@ -210,15 +218,16 @@ body{margin:0;min-height:100vh;background:
   <header class="hd">
     <div class="kick">Nurse Practitioner · Architect</div>
     <h1>胃腸肝膽科<span class="gi"> 知識整理</span></h1>
-    <div class="sub">依概念主題整理 109–114 年甄審試題涵蓋之胃腸肝膽知識，每頁附相關題目與 Phase 1 詳解。一律以官方標準答案為正解。</div>
+    <div class="sub">依概念主題整理 104–114 年甄審試題涵蓋之胃腸肝膽知識，每頁附相關題目與 Phase 1 詳解。一律以官方標準答案為正解。</div>
   </header>
   <div id="catalog">
     <section id="statspanel" class="statsbox" hidden>
-      <h2 class="stitle">歷年題數（109–114 年）</h2>
+      <h2 class="stitle">歷年題數（104–114 年）</h2>
       <div class="stwrap"><table class="stab" id="stab"></table></div>
     </section>
     <div class="dlbar">
-      <a class="dl" href="manual/np-gi-handbook.pdf" download>⬇ 下載完整手冊 PDF<small>同密碼開啟・離線可讀</small></a>
+      <a class="dl" href="manual/np-gi-handbook.pdf" download>⬇ 完整手冊 PDF（104–114）<small>同密碼開啟・離線可讀</small></a>
+      <a class="dl" href="manual/np-gi-handbook-109to114.pdf" download>⬇ 對照版 PDF（109–114）<small>較新知識獨立對照・同密碼</small></a>
     </div>
     <div id="topiclist"></div>
   </div>
@@ -226,7 +235,7 @@ body{margin:0;min-height:100vh;background:
   <footer class="note">非公開・私人考題及內容知識整理與確認使用。密碼保護下，本站為非營利、無公開散布／非法擴散意圖之個人學習用途。</footer>
 </div>
 
-<script>window.__META__ = {"v": 1, "kdf": "PBKDF2-SHA256", "iterations": 600000, "salt_b64": "Hqn1XjF8R12sU5Htp+vW/g==", "cipher": "AES-256-GCM"};</script>
+<script>window.__META__ = {"v": 1, "kdf": "PBKDF2-SHA256", "iterations": 600000, "salt_b64": "395dgRMFiUsklvTTf6dcMw==", "cipher": "AES-256-GCM"};</script>
 <script src="app.js"></script>
 </body>
 </html>
