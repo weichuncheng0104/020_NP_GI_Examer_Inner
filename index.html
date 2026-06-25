@@ -44,9 +44,11 @@ body{margin:0;min-height:100vh;background:
   padding:5px 13px;border-radius:999px;white-space:nowrap;border:1px solid transparent}
 .bstat.no{background:var(--bad-bg);color:var(--bad);border-color:#eccac3}
 .bstat.ok{background:var(--ok-bg);color:var(--ok);border-color:#cbe6d3}
-.bname{font:500 italic .95rem/1.3 var(--serif);color:var(--muted);flex:1;min-width:120px;
+.bname{font:500 italic .95rem/1.3 var(--serif);color:var(--muted);min-width:120px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.btoggle{font:inherit;font-size:.85rem;padding:6px 15px;border:1px solid var(--line-s);border-radius:999px;
+.bviews{font:600 .82rem/1 var(--sans);color:var(--muted);white-space:nowrap}
+.bviews b{color:var(--pine);font-variant-numeric:tabular-nums}
+.btoggle{margin-left:auto;font:inherit;font-size:.85rem;padding:6px 15px;border:1px solid var(--line-s);border-radius:999px;
   background:transparent;color:var(--pine);cursor:pointer;white-space:nowrap;transition:all .14s}
 .btoggle:hover{background:var(--pine);color:#fff;border-color:var(--pine)}
 .bandbody{padding:2px 0 16px;animation:banddrop .28s both}
@@ -195,6 +197,7 @@ body{margin:0;min-height:100vh;background:
   <div class="bandhdr">
     <span id="bstat" class="bstat no">🔒 未驗證</span>
     <span class="bname">胃腸肝膽科 知識整理</span>
+    <span id="gcv" class="bviews" hidden>（瀏覽數 <b></b>）</span>
     <button id="btoggle" type="button" class="btoggle" hidden aria-expanded="false">展開</button>
   </div>
   <div id="bandbody" class="bandbody">
@@ -240,7 +243,14 @@ body{margin:0;min-height:100vh;background:
   <footer class="note">非公開・私人考題及內容知識整理與確認使用。密碼保護下，本站為非營利、無公開散布／非法擴散意圖之個人學習用途。</footer>
 </div>
 
-<script>window.__META__ = {"v": 1, "kdf": "PBKDF2-SHA256", "iterations": 600000, "salt_b64": "5eC3bq/FNGbqzsNFBcOkxA==", "cipher": "AES-256-GCM"};</script>
+<script>window.__META__ = {"v": 1, "kdf": "PBKDF2-SHA256", "iterations": 600000, "salt_b64": "77dbSNihO8wsLVX/wlnk2g==", "cipher": "AES-256-GCM"};</script>
+<script>
+(function(){var w=document.getElementById('gcv');if(!w||!window.fetch)return;var b=w.querySelector('b');
+ fetch('https://np-gi-exam-inner.goatcounter.com/counter/TOTAL.json',{mode:'cors'})
+  .then(function(r){return r.ok?r.json():Promise.reject(0)})
+  .then(function(d){if(d&&d.count){b.textContent=d.count;w.hidden=false}})
+  .catch(function(){});})();
+</script>
 <script src="app.js"></script>
 </body>
 </html>
