@@ -122,23 +122,23 @@ function renderStats(){
 }
 
 /* ── 目錄頁主題統計表（可排序，user 2026-06-15）──────────
-   欄：主題｜通論+內(109–114)｜總題數｜內｜通論｜外。每欄 ▲升冪/▼降冪；
-   數值欄次要鍵固定序 c109→total→im→common→surg（扣被選為主鍵者），一律降冪；主題欄依名稱。 */
-const NUM_ORDER = ['c109', 'total', 'im', 'common', 'surg'];
+   欄：主題｜通論+內(近七年 109–115)｜總題數｜內｜通論｜外。每欄 ▲升冪/▼降冪；
+   數值欄次要鍵固定序 c7y→total→im→common→surg（扣被選為主鍵者），一律降冪；主題欄依名稱。 */
+const NUM_ORDER = ['c7y', 'total', 'im', 'common', 'surg'];
 const COLS = [
   {key:'name',   label:'主題'},
-  {key:'c109',   label:'通論+內', sub:'109–114'},
+  {key:'c7y',   label:'通論+內', sub:'109–115'},
   {key:'total',  label:'總題數'},
   {key:'im',     label:'內'},
   {key:'common', label:'通論'},
   {key:'surg',   label:'外'}
 ];
-let SORT_KEY = 'c109', SORT_DIR = 'desc';   // 預設：109 通論+內 降冪
+let SORT_KEY = 'c7y', SORT_DIR = 'desc';   // 預設：近七年 通論+內 降冪
 
 function tval(t, key){
   const c = t.counts || {};
   switch(key){
-    case 'c109':   return t.c109 || 0;
+    case 'c7y':   return t.c7y || 0;
     case 'total':  return c.total || 0;
     case 'im':     return c.inad_im || 0;
     case 'common': return c.common || 0;
@@ -177,7 +177,7 @@ function renderTopicTable(){
     const sup = t.is_full_page ? '' : '<span class="sup">補充</span>';
     return '<tr>' +
       `<td class="tname"><a class="tlink" data-slug="${esc(t.slug)}">${esc(t.name)}</a>${sup}</td>` +
-      `<td class="c109">${esc(t.c109 || 0)}</td>` +
+      `<td class="c7y">${esc(t.c7y || 0)}</td>` +
       `<td>${esc(c.total || 0)}</td>` +
       `<td>${esc(c.inad_im || 0)}</td>` +
       `<td>${esc(c.common || 0)}</td>` +
